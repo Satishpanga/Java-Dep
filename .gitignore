@@ -1,37 +1,23 @@
-# Maven build directory
+# Maven
 target/
-
-# Maven backup files
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
 
-# IntelliJ IDEA project files
+# IntelliJ / IDEs
 .idea/
 *.iml
-
-# Eclipse project files (in case someone uses Eclipse)
 .classpath
 .project
 .settings/
 
-# Logs
-*.log
-
-# OS files
+# OS junk
 .DS_Store
 Thumbs.db
 
-# Java-specific
-*.class
-*.jar
-*.war
-*.ear
+# Logs
+*.log
 
-# Backup files
-*~
-*.bak
-
-# Environment / runtime
+# Env
 .env
