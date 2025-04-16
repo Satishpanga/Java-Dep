@@ -1,51 +1,62 @@
 pipeline {
-    agent any
+    agent any  // Runs on any available Jenkins agent
     
     tools {
-        maven 'Maven' // Name of Maven installation in Jenkins
-        jdk 'JDK17'    // Name of JDK installation in Jenkins
+        maven 'Maven-3.9.6'  // Name of Maven installation in Jenkins
+        jdk 'JDK-17'        // Name of JDK installation in Jenkins
     }
     
     stages {
+        // Stage 1: Fetch code from Git
         stage('Checkout') {
             steps {
-                git branch: 'main', 
+                git branch: 'main',
                 url: 'https://github.com/yourusername/your-repo.git'
             }
         }
         
+        // Stage 2: Build the JAR with Maven
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean package'  // Compiles, tests, and packages the JAR
             }
         }
         
+        // Stage 3: Run tests (optional)
         stage('Test') {
             steps {
-                sh 'mvn test'
+                sh 'mvn test'  // Runs unit tests
             }
         }
         
+        // Stage 4: Deploy using systemd service
         stage('Deploy') {
             steps {
-                sh '''
-                # Stop existing application if running
-                pkill -f "java -jar your-app.jar" || true
-                
-                # Copy new build to deployment directory
-                cp target/your-app.jar /opt/yourapp/
-                
-                # Start application
-                cd /opt/yourapp/
-                nohup java -jar your-app.jar > app.log 2>&1 &
-                '''
+                script {
+                    // Copy the new JAR to the deployment directory
+                    sh 'sudo cp target/your-app.jar /opt/yourapp/'
+                    
+                    // Restart the systemd service
+                    sh 'sudo systemctl restart yourapp'
+                    
+                    // Verify service status (optional)
+                    sh 'sudo systemctl status yourapp --no-pager'
+                }
             }
         }
     }
     
     post {
+        // Always clean the workspace after build
         always {
-            cleanWs() // Clean workspace after build
+            cleanWs()
+        }
+        
+        // Send email on failure (requires Email Extension plugin)
+        failure {
+            emailext body: 'Build failed! Check ${BUILD_URL}',
+                    subject: 'Jenkins Build Failed: ${JOB_NAME}',
+                    to: 'dev-team@example.com'
         }
     }
 }
